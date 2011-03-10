@@ -9,9 +9,13 @@ package App::Fed;
 # It is licensed, and can be distributed under the same terms as Perl itself.
 #
 ################################################################################
-use warnings; use strict;
+use warnings; use strict; # {{{
 
-my $VERSION = '0.01';
+my $VERSION = '0.01_alpha';
+
+use English qw( -no_match_vars );
+use Getopt::Long 2.36 qw( GetOptionsFromArray );
+# }}}
 
 =head1 NAME
 
@@ -32,9 +36,15 @@ fed - file editor for filtering and transforming text, file-wide.
 
 =head1 DESCRIPTION
 
-Fed is a replace/filter utility, working on per-line or per-file basis, across multiple files.
+Fed is a replace/filter utility, working on per-line or per-file basis, across multiple files,
+even going recursively into directories.
 
 It aims to provide easy access to some functionality of I<sed>, I<awk> and I<Perl>.
+
+By default it will replace files in-place, so you do not have to pipe/move anything.
+
+You can control the edit process either by having changed files written under different name,
+or by inspecting changes (with F<diff>) and accepting them manually.
 
 =head1 COMMANDS
 
@@ -53,7 +63,6 @@ Please see App::Fed::Cookbook for how those can be applied to real-life situatio
 =head2 s/PATTERN/EXPRESSION/MODIFIERS
 
 Substitute, according to given expression.
-
 
 =head2 tr/PATTERN/EXPRESSION/MODIFIERS
 
@@ -105,13 +114,30 @@ Enabling 'm' and 's' as "/ms", they let the "." match any character whatsoever, 
 
 =over
 
+=cut
+
+my %options_def;
+my %options;
+
 =item -a --ask
 
 Ask, before doing anything.
 
-=item -c --copy
+=cut
 
-Copy instead of rename when shuffling files in -i mode (avoids change of input file ownership).
+$options_def{ 'a|ask' } = \$options{'ask'};
+
+=item -c --changed-only
+
+Write anything only, if any changes ware made.
+
+=item -d --diff
+
+Show I<diff> between original and modified content and ask for confirmation.
+
+=item --diff-command=COMMAND
+
+What comparison command to run, defaults to: F<diff>.
 
 =item -e script --exec=command
 
@@ -121,17 +147,24 @@ Add the script to the commands to be executed.
 
 Parse contents of options-file, as if it was part of the command line.
 
-=item -
-
 =item -h --help
 
 Output a short help and exit.
 
-=item -i --in-place[=SUFFIX]
+=item -m --move
 
-Edit files in place.
+When used with I<-P> or I<-P>, F<fed> will move the file first, then copy it to the old name,
+and finally modify moved file.
 
-Makes backup if SUFFIX supplied.
+This preserves hard links, ownership and other attributes.
+
+If file is changed in-place, the option is silently ignored.
+
+=item -p --pretend
+
+Do not do anything, just pretend and describe what would be done.
+
+This option overwrites I<-a> (with a warning).
 
 =item -q --quiet --silent
 
@@ -145,6 +178,14 @@ Process directories recursively. If this option is not enabled, those will be ig
 
 Explain what is being done.
 
+=item -P --prefix[=PREFIX]
+
+Instead of doing the change in-place, save changed file to a copy with PREFIX added to the name.
+
+=item -S --suffix[=SUFFIX]
+
+Instead of doing the change in-place, save changed file to a copy with SUFFIX added to the name.
+
 =item -V --version
 
 Display version info and exit.
@@ -153,13 +194,20 @@ Display version info and exit.
 
 =head1 REGULAR EXPRESSIONS
 
-This command uses Perl Regular Expressions. It understand everything,
+This command uses Perl Regular Expressions. It will understand everything,
 that the version of Perl on which it runs will accept.
 
 =cut
 
 sub main { # {{{
     my ( @params ) = @_;
+
+    GetOptionsFromArray(
+        \@params,
+        %options_def,
+    );
+
+#    use Data::Dumper; warn Dumper \%options, @params;
 
     return 0;
 } # }}}
@@ -185,29 +233,9 @@ Enable (or disable) use of color in the output.
 
 Requires L<Term::ANSIColor>.
 
-=item -o --output[=SUFFIX]
+=item --recipy=RECIPY
 
-Output to new file, adding SUFFIX to it's name.
-
-If both SUFFIX and PREFIX are not provided, SUFFIX defaults to 'new'.
-
-=item -p --prefix[=PREFIX]
-
-If -o or -i is used, the PREFIX will be prepended to file name.
-
-Otherwise ignored.
-
-=item -p --pretend
-
-Do not do anything, just pretend and describe what would be done.
-
-=item -d --diff
-
-Show I<diff> between original and modified content and ask for confirmation.
-
-=item --diff-command=COMMAND
-
-What comparizon command to run, defaults to: F<diff>.
+Use recipy named I<RECIPY> from the APP::Fed::Coocbook.
 
 =back
 
