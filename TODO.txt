@@ -1,0 +1,89 @@
+
+    Version 0.01_alpha
+
+[>] Devel stuff
+[X]     Make a GitHub repo
+[ ]     Hook to Reksio
+[ ] Commands
+[ ]     s
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     tr
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     p
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     r
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     m
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ] Command line options
+[ ]     --diff-command=COMMAND
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -P --prefix[=PREFIX]
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -S --suffix[=SUFFIX]
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -V --version
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -a --ask
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -c --changed-only
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -d --diff
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -e script --exec=command
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -f options-file --file=options-file
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -h --help
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -m --move
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -p --pretend
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -r -R --recursive
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ]     -v --verbose
+[ ]         Test cases
+[ ]         Implementation
+[ ]         Bugfixing
+[ ] Packaging
+[ ]     Set up Module::Build.
+[ ]     Upload to CPAN.
+[ ]     Spread the news.
+
