@@ -4,9 +4,9 @@
 [X] Devel stuff
 [X]     Make a GitHub repo
 [X]     Hook to Reksio
-[ ] Commands
-[ ]     s
-[ ]         Test cases
+[>] Commands
+[>]     s
+[>]         Test cases
 [ ]         Implementation
 [ ]         Bugfixing
 [ ]     tr

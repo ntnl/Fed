@@ -1,0 +1,13 @@
+--- 
+foo:
+  - One element
+  - Two elements
+  - Three elements
+bar:
+  - I
+  - II
+  - III
+baz:
+  - 1
+  - 2
+  - 3

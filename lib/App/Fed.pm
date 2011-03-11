@@ -28,11 +28,12 @@ fed - file editor for filtering and transforming text, file-wide.
  # Replace anything between 'foo' and 'bar' with space, one time.
  fed 's/foo.+?baz/ /' text_*.txt
  
- # Strip comments from config files:
- fed 'x/\s*#.+?$/m' *.conf
+ # Strip comments from config files, each time show diff and ask:
+ fed -a -d 'x/\s*#.+?$/m' *.conf
  
  # Remove HTML links.
- fed -i -c 's{<a.+?>(.+?)<\\\/a>}{$1}sg' page*.html
+ fed -c 's{<a.+?>(.+?)<\\\/a>}{$1}sg' page*.html
+
 
 =head1 DESCRIPTION
 
