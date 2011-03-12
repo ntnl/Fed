@@ -360,6 +360,24 @@ sub _handle_tr { # {{{
     return ($contents, $replaced);
 } # }}}
 
+sub _handle_m { # {{{
+    my ( $contents, $command ) = @_;
+
+    my ( $match, $modifiers ) = ( $command->{'pattern'}, ($command->{'modifiers'} or q{}) );
+
+    my @matches = eval q{ return ( $contents =~ m/(} . $match . q{)/} . $modifiers .q{ ) };
+
+    if ($EVAL_ERROR) {
+        warn $EVAL_ERROR;
+    }
+
+    if (scalar @matches) {
+        return ( (join q{}, @matches), 1);
+    }
+
+    return ($contents, 0);
+} # }}}
+
 sub _handle_r { # {{{
     my ( $contents, $command ) = @_;
 
