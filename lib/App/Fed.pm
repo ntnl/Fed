@@ -355,14 +355,33 @@ sub _handle_tr { # {{{
         warn $EVAL_ERROR;
     }
 
-    warn $replaced;
+#    warn $replaced;
+
+    return ($contents, $replaced);
+} # }}}
+
+sub _handle_r { # {{{
+    my ( $contents, $command ) = @_;
+
+    my ( $match, $modifiers ) = ( $command->{'pattern'}, ($command->{'modifiers'} or q{}) );
+
+    # Eval is not the best option, but I have no better solution for now.
+    my $replaced = eval q{ $contents =~ s/} . $match . q{//} . $modifiers;
+
+    if ($EVAL_ERROR) {
+        warn $EVAL_ERROR;
+    }
+
+#    warn $replaced;
 
     return ($contents, $replaced);
 } # }}}
 
 =head1 BUGS
 
-None known at the moment.
+Probably. None known at the moment.
+
+Please report using CPAN RT or email to the author.
 
 =head1 TODO
 

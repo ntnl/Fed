@@ -14,12 +14,12 @@
 [ ]     p
 [ ]         Test cases
 [ ]         Implementation
-[ ]     r
-[ ]         Test cases
-[ ]         Implementation
 [ ]     m
 [ ]         Test cases
 [ ]         Implementation
+[X]     r
+[X]         Test cases
+[X]         Implementation
 [ ] Command line options
 [ ]     --diff-command=COMMAND
 [ ]         Test cases
