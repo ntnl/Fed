@@ -19,7 +19,7 @@ App::Fed::Cookbook - recipes for B<fed>.
 
 =head1 RECIPES
 
-=head2 Merge spaces.
+=head2 Merge white spaces (spaces and tabs).
 
  fed 's/\s+/ /g' file
 

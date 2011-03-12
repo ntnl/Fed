@@ -14,6 +14,7 @@ use warnings; use strict; # {{{
 my $VERSION = '0.01_alpha';
 
 use English qw( -no_match_vars );
+use File::Slurp qw( read_file write_file );
 use Getopt::Long 2.36 qw( GetOptionsFromArray );
 # }}}
 
@@ -29,11 +30,10 @@ fed - file editor for filtering and transforming text, file-wide.
  fed 's/foo.+?baz/ /' text_*.txt
  
  # Strip comments from config files, each time show diff and ask:
- fed -a -d 'x/\s*#.+?$/m' *.conf
+ fed -a -d 'r/\s*#.+?$/m' *.conf
  
  # Remove HTML links.
  fed -c 's{<a.+?>(.+?)<\\\/a>}{$1}sg' page*.html
-
 
 =head1 DESCRIPTION
 
@@ -55,7 +55,7 @@ B<tr> (transcode),
 B<p> (pipe),
 B<r> (remove),
 and B<m> (match).
-Following separators are supported: B<//>, B<{}>, B<[]>, B<()>.
+Following separators are supported: B<//>, B<{}>, B<[]>.
 
 Many commands can be provided in a row, they will all be applied one after another, each working on the output from previous one.
 
@@ -80,6 +80,41 @@ Remove parts, that match the regular expression.
 =head2 m/PATTERN/MODIFIERS
 
 Match parts of the filename and remove anything else.
+
+=cut
+
+my %command_spec = (
+    s  => {
+        groupping   => 1, # Groups are allowed.
+        replacement => 1, # Replacement is required
+
+        callback => \&_handle_s,
+    },
+    tr => {
+        groupping   => 0,
+        replacement => 1,
+
+        callback => \&_handle_tr,
+    },
+    p  => {
+        groupping   => 1,
+        replacement => 1,
+
+        callback => \&_handle_p,
+    },
+    r  => {
+        groupping   => 0,
+        replacement => 0,
+
+        callback => \&_handle_r,
+    },
+    m  => {
+        groupping   => 0,
+        replacement => 0,
+
+        callback => \&_handle_m,
+    },
+);
 
 =head1 MODIFIERS
 
@@ -203,6 +238,11 @@ that the version of Perl on which it runs will accept.
 sub main { # {{{
     my ( @params ) = @_;
 
+    # Display help, if run without parameters.
+    if (not scalar @params) {
+        @params = q{--help};
+    }
+
     GetOptionsFromArray(
         \@params,
         %options_def,
@@ -210,7 +250,97 @@ sub main { # {{{
 
 #    use Data::Dumper; warn Dumper \%options, @params;
 
+    if ($options{'help'}) {
+        return 0;
+    }
+    elsif ($options{'version'}) {
+        return 0;
+    }
+
+    # Isolate commands from files.
+    my @commands;
+    my @files;
+
+    foreach my $param (@params) {
+        if ($param =~ m{^([stprm]r?)(.+?)([egims]+)?$}s) {
+            # This looks as a command :)
+            my ( $command, $guts, $modifiers ) = ( $1, $2, $3 );
+
+#            warn qq{ $command, $guts, $modifiers };
+
+            my ( $is_regexp, $pattern, $expression );
+            if ($guts =~ m{^/(.+?)/((.*?)/)?$}) {
+                ( $is_regexp, $pattern, $expression ) = ( 1, $1, $3 );
+            }
+            elsif ($guts =~ m{^\{(.+?)\}(\{(.*?)\})??$}) {
+                ( $is_regexp, $pattern, $expression ) = ( 1, $1, $3 );
+            }
+            elsif ($guts =~ m{^\[(.+?)\](\[(.*?)\])?$}) {
+                ( $is_regexp, $pattern, $expression ) = ( 1, $1, $3 );
+            }
+
+            if ($command_spec{$command} and $is_regexp) {
+                # This IS a command :)
+                push @commands, {
+                    command   => $command,
+                    pattern   => $pattern,
+                    replace   => $expression,
+                    modifiers => $modifiers,
+                };
+
+                # Head to next parameter.
+                next;
+            }
+        }
+
+        # It was not recognised as regular expression, therefore it must be a file.
+        push @files, $param;
+    }
+
+#    use Data::Dumper; warn Dumper \@files, \@commands;
+
+    foreach my $file (@files) {
+        _process_file($file, \@commands);
+    }
+
     return 0;
+} # }}}
+
+sub _process_file { # {{{
+    my ( $file, $commands ) = @_;
+
+    # Read in the file.
+    my $contents = read_file($file);
+
+    foreach my $command (@{ $commands }) {
+        my $matched;
+
+        my $callback = $command_spec{ $command->{'command'} }->{'callback'};
+
+        ( $contents, $matched ) = $callback->($contents, $command);
+    }
+
+    # Write out modified content.
+    write_file($file, $contents);
+
+    return;
+} # }}}
+
+sub _handle_s { # {{{
+    my ( $contents, $command ) = @_;
+
+    my ( $match, $replace, $modifiers ) = ( $command->{'pattern'}, ($command->{'replace'} or q{}), ($command->{'modifiers'} or q{}) );
+
+    # Eval is not the best option, but I have no better solution for now.
+    my $replaced = eval q{ $contents =~ s/} . $match . q{/} . $replace . q{/} . $modifiers;
+
+    if ($EVAL_ERROR) {
+        warn $EVAL_ERROR;
+    }
+
+#    warn $replaced;
+
+    return ($contents, $replaced);
 } # }}}
 
 =head1 BUGS
@@ -234,9 +364,9 @@ Enable (or disable) use of color in the output.
 
 Requires L<Term::ANSIColor>.
 
-=item --recipy=RECIPY
+=item --recipe=RECIPY
 
-Use recipy named I<RECIPY> from the APP::Fed::Coocbook.
+Use recipe named I<RECIPY> from the APP::Fed::Coocbook.
 
 =back
 
@@ -252,6 +382,10 @@ This is free software.
 It is licensed, and can be distributed under the same terms as Perl itself.
 
 =cut
+
+# Internal notes:
+#
+#   o Consider using Regexp::Parser - but it supports up to 5.8.x only :(
 
 # vim: fdm=marker
 1;
