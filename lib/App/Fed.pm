@@ -9,9 +9,9 @@ package App::Fed;
 # It is licensed, and can be distributed under the same terms as Perl itself.
 #
 ################################################################################
-use warnings; use strict; # {{{
+use warnings; use strict;
 
-my $VERSION = '0.01_alpha';
+my $VERSION = '0.01_alpha'; # {{{
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file write_file );
