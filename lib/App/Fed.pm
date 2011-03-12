@@ -343,6 +343,23 @@ sub _handle_s { # {{{
     return ($contents, $replaced);
 } # }}}
 
+sub _handle_tr { # {{{
+    my ( $contents, $command ) = @_;
+
+    my ( $tr_from, $tr_to, $modifiers ) = ( $command->{'pattern'}, ($command->{'replace'} or q{}), ($command->{'modifiers'} or q{}) );
+
+    # Eval is not the best option, but I have no better solution for now.
+    my $replaced = eval q{ $contents =~ tr/} . $tr_from . q{/} . $tr_to . q{/} . $modifiers;
+
+    if ($EVAL_ERROR) {
+        warn $EVAL_ERROR;
+    }
+
+    warn $replaced;
+
+    return ($contents, $replaced);
+} # }}}
+
 =head1 BUGS
 
 None known at the moment.

@@ -8,9 +8,9 @@
 [X]     s
 [X]         Test cases
 [X]         Implementation
-[ ]     tr
-[ ]         Test cases
-[ ]         Implementation
+[X]     tr
+[X]         Test cases
+[X]         Implementation
 [ ]     p
 [ ]         Test cases
 [ ]         Implementation

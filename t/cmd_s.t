@@ -25,6 +25,8 @@ plan tests => 6;
 
 use App::Fed;
 
+
+
 system q{cp}, $Bin . q{/../t_data/text_A.txt}, q{/tmp/} . $PID . q{.txt};
 is(
     App::Fed::main("s{[ \t]+}{ }g", q{/tmp/} . $PID . q{.txt}),
@@ -108,5 +110,7 @@ Ut quis lectus lectus, in eleifend velit. Aenean et arcu a massa eleifend commod
     q{Strip html - check},
 );
 system q{rm}, q{-f}, q{/tmp/} . $PID . q{.txt};
+
+
 
 # vim: fdm=marker
