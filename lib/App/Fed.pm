@@ -360,6 +360,41 @@ sub _handle_tr { # {{{
     return ($contents, $replaced);
 } # }}}
 
+sub _handle_p { # {{{
+    my ( $contents, $command ) = @_;
+
+    my ( $match, $pipe_command, $modifiers ) = ( $command->{'pattern'}, ($command->{'replace'} or q{}), ($command->{'modifiers'} or q{}) );
+
+    # FIXME: additional 'e' will probably NOT do what the User expects!
+
+    # Eval is not the best option, but I have no better solution for now.
+    my $replaced = eval q{ $contents =~ s/(} . $match . q{)/_p_pipe($pipe_command, $1)/e} . $modifiers;
+
+    if ($EVAL_ERROR) {
+        warn $EVAL_ERROR;
+    }
+
+#    warn $replaced;
+
+    return ($contents, $replaced);
+} # }}}
+
+sub _p_pipe { # {{{
+    my ( $command, $input ) = @_;
+    
+    # FIXME: Replace with two-way open.
+    write_file(q{/tmp/fed_} . $PID, $input);
+
+    my $fh;
+    open $fh, q{-|}, q{cat /tmp/fed_} . $PID . q{ | } . $command;
+    my $output = read_file($fh);
+    close $fh;
+
+    unlink q{/tmp/fed_} . $PID;
+
+    return $output;
+} # }}}
+
 sub _handle_m { # {{{
     my ( $contents, $command ) = @_;
 

@@ -4,16 +4,16 @@
 [X] Devel stuff
 [X]     Make a GitHub repo
 [X]     Hook to Reksio
-[>] Commands
+[X] Commands
 [X]     s
 [X]         Test cases
 [X]         Implementation
 [X]     tr
 [X]         Test cases
 [X]         Implementation
-[ ]     p
-[ ]         Test cases
-[ ]         Implementation
+[X]     p
+[X]         Test cases
+[X]         Implementation
 [X]     m
 [X]         Test cases
 [X]         Implementation
