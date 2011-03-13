@@ -27,12 +27,12 @@
 [X]     -V --version
 [X]         Test cases
 [X]         Implementation
-[ ]     -P --prefix[=PREFIX]
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -S --suffix[=SUFFIX]
-[ ]         Test cases
-[ ]         Implementation
+[X]     -P --prefix[=PREFIX]
+[X]         Test cases
+[X]         Implementation
+[X]     -S --suffix[=SUFFIX]
+[X]         Test cases
+[X]         Implementation
 [ ]     -a --ask
 [ ]         Test cases
 [ ]         Implementation

@@ -223,14 +223,21 @@ Explain what is being done.
 
 Instead of doing the change in-place, save changed file to a copy with PREFIX added to the name.
 
+=cut
+
+$options_def{ 'P|prefix=s' } = \$options{'prefix'};
+
 =item -S --suffix[=SUFFIX]
 
 Instead of doing the change in-place, save changed file to a copy with SUFFIX added to the name.
 
+=cut
+
+$options_def{ 'S|suffix=s' } = \$options{'suffix'};
+
 =item -V --version
 
 Display version info and exit.
-
 
 =cut
 
@@ -253,6 +260,7 @@ sub main { # {{{
         @params = q{--help};
     }
 
+    Getopt::Long::Configure("bundling");
     GetOptionsFromArray(
         \@params,
         %options_def,
@@ -300,10 +308,11 @@ sub main { # {{{
         print qq{    \n};
         print qq{Example:\n};
         print qq{    \n};
-        print qq{    \$ fed -a -d -r 's/br0k3n/broken/g' my_text_files/\n};
-        print qq{           |  |  |  |                  |\n};
-        print qq{           |  |  |  |                  '-- all files from 'my_text_files'.\n};
-        print qq{           |  |  |  '-- Substitute all occurances of 'br0k3n' with 'broken'.\n};
+        print qq{    \$ fed -a -d -r -S .new 's/br0k3n/broken/g' my_text_files/\n};
+        print qq{           |  |  |  |       |                  |\n};
+        print qq{           |  |  |  |       |                  '-- all files from 'my_text_files'.\n};
+        print qq{           |  |  |  |       '-- Substitute all occurances of 'br0k3n' with 'broken'.\n};
+        print qq{           |  |  |  '-- Write to new files, with '.new' appended to the name\n};
         print qq{           |  |  '-- Dive into subdirectories.\n};
         print qq{           |  '-- Display differences after processing each file.\n};
         print qq{           '-- Ask for confirmation, before writing changes.\n};
@@ -367,18 +376,46 @@ sub _process_file { # {{{
     # Read in the file.
     my $contents = read_file($file);
 
+    my $something_was_done = 0;
+
     foreach my $command (@{ $commands }) {
-        my $matched;
+        my $something_was_done_here;
 
         my $callback = $command_spec{ $command->{'command'} }->{'callback'};
 
-        ( $contents, $matched ) = $callback->($contents, $command);
+        ( $contents, $something_was_done_here ) = $callback->($contents, $command);
+
+        if ($something_was_done_here) {
+            $something_was_done = 1;
+        }
+    }
+
+    # Decide, where We will output.
+    my $file_out = $file;
+    if ($options{'prefix'} or $options{'suffix'}) {
+        $file_out = _rename_file($file, $options{'prefix'}, $options{'suffix'});
     }
 
     # Write out modified content.
-    write_file($file, $contents);
+    write_file($file_out, $contents);
 
     return;
+} # }}}
+
+sub _rename_file { # {{{
+    my ( $path, $prefix, $suffix ) = @_;
+
+#    warn "( $path, $prefix, $suffix )";
+
+    if ($prefix) {
+        $path =~ s{/([^/]+)$}{/$prefix$1}si;
+    }
+
+    if ($suffix) {
+        return $path . $suffix;
+    }
+
+    return $path;
 } # }}}
 
 sub _handle_s { # {{{
