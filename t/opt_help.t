@@ -38,7 +38,7 @@ output_like(
 );
 output_like(
     sub {
-        App::Fed::main(),
+        App::Fed::main(q{-h}),
     },
     qr{Usage},
     undef,
@@ -46,7 +46,7 @@ output_like(
 );
 output_like(
     sub {
-        App::Fed::main(),
+        App::Fed::main(q{--help}),
     },
     qr{Usage},
     undef,
