@@ -24,9 +24,9 @@
 [X]     -h --help
 [X]         Test cases
 [X]         Implementation
-[ ]     -V --version
-[ ]         Test cases
-[ ]         Implementation
+[X]     -V --version
+[X]         Test cases
+[X]         Implementation
 [ ]     -P --prefix[=PREFIX]
 [ ]         Test cases
 [ ]         Implementation

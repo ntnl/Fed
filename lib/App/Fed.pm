@@ -231,6 +231,11 @@ Instead of doing the change in-place, save changed file to a copy with SUFFIX ad
 
 Display version info and exit.
 
+
+=cut
+
+$options_def{ 'V|version' } = \$options{'version'};
+
 =back
 
 =head1 REGULAR EXPRESSIONS
