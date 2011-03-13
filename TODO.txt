@@ -20,17 +20,17 @@
 [X]     r
 [X]         Test cases
 [X]         Implementation
-[ ] Command line options
-[ ]     --diff-command=COMMAND
+[>] Command line options
+[X]     -h --help
+[X]         Test cases
+[X]         Implementation
+[ ]     -V --version
 [ ]         Test cases
 [ ]         Implementation
 [ ]     -P --prefix[=PREFIX]
 [ ]         Test cases
 [ ]         Implementation
 [ ]     -S --suffix[=SUFFIX]
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -V --version
 [ ]         Test cases
 [ ]         Implementation
 [ ]     -a --ask
@@ -42,13 +42,10 @@
 [ ]     -d --diff
 [ ]         Test cases
 [ ]         Implementation
-[ ]     -e script --exec=command
+[ ]     --diff-command=COMMAND
 [ ]         Test cases
 [ ]         Implementation
 [ ]     -f options-file --file=options-file
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -h --help
 [ ]         Test cases
 [ ]         Implementation
 [ ]     -m --move
@@ -65,8 +62,13 @@
 [ ]         Implementation
 [ ] Bugs
 [ ]     Check if s/// will work OK when there is '\/' in it...
+[ ]     Dry-run each command, before even touching files
 [ ] Packaging
 [ ]     Set up Module::Build.
 [ ]     Upload to CPAN.
 [ ]     Spread the news.
+
+    Future TODO:
+
+[ ] STDIN / STDOUT support
 

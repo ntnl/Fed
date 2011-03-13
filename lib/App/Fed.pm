@@ -157,7 +157,7 @@ my %options;
 
 =item -a --ask
 
-Ask, before doing anything.
+Ask, before writing anything.
 
 =cut
 
@@ -169,15 +169,16 @@ Write anything only, if any changes ware made.
 
 =item -d --diff
 
-Show I<diff> between original and modified content and ask for confirmation.
+Show I<diff> between original and modified content, before writing changes.
+
+By default, program will not ask or wait for confirmation, just describe the changes and continue.
+If you want to be able to inspect and confirm changes, use with combination with I<-a>.
+
+This is useful to be able to quickly inspect - post-mortem - what has been done.
 
 =item --diff-command=COMMAND
 
 What comparison command to run, defaults to: F<diff>.
-
-=item -e script --exec=command
-
-Add the script to the commands to be executed.
 
 =item -f options-file --file=options-file
 
@@ -187,9 +188,13 @@ Parse contents of options-file, as if it was part of the command line.
 
 Output a short help and exit.
 
+=cut
+
+$options_def{ 'h|help' } = \$options{'help'};
+
 =item -m --move
 
-When used with I<-P> or I<-P>, F<fed> will move the file first, then copy it to the old name,
+When used with I<-P> or I<-S>, F<fed> will move the file first, then copy it to the old name,
 and finally modify moved file.
 
 This preserves hard links, ownership and other attributes.
@@ -204,7 +209,7 @@ This option overwrites I<-a> (with a warning).
 
 =item -q --quiet --silent
 
-Output nothing, or as little as possible.
+Output nothing, and if, then only to STDERR.
 
 =item -r -R --recursive
 
@@ -250,10 +255,55 @@ sub main { # {{{
 
 #    use Data::Dumper; warn Dumper \%options, @params;
 
-    if ($options{'help'}) {
+    if ($options{'version'}) {
+        print "File EDitor v" . $VERSION . "\n";
+
         return 0;
     }
-    elsif ($options{'version'}) {
+    elsif ($options{'help'}) {
+        print "File EDitor v" . $VERSION ."\n";
+
+        print qq{\n};
+        print qq{Usage:\n};
+        print qq{    \$ fed [OPTIONS] COMMANDS FILES\n};
+        print qq{\n};
+        print qq{Commands:\n};
+        print qq{\n};
+        print qq{    s/Pattern/String/eigms  Substitute - replace 'Pattern' with 'String'\n};
+        print qq{    p/Pattern/Command/igms  Pipe - replace 'Pattern' with output from 'Command'\n};
+        print qq{    tr/From/To/             Transcode - Replace letters from 'From' to their pairs from 'To'\n};
+        print qq{    m/Pattern/irms          Match - Remove everything, that does not match the 'Pattern'\n};
+        print qq{    r/Pattern/igms          Remove - Remove every occurance of 'Pattern'\n};
+        print qq{\n};
+        print qq{Options:\n};
+        print qq{\n};
+        print qq{    -p --pretend           Do not do anything, just describe what would be done.\n};
+        print qq{    -a --ask               Ask, before writing anything.\n};
+        print qq{    -d --diff              Show 'diff' between original and modified content.\n};
+        print qq{    --diff-command=COMMAND What comparison command to run, defaults to: 'diff'.\n};
+        print qq{    -q --quiet --silent    Output nothing.\n};
+        print qq{    -v --verbose           Explain what is being done.\n};
+        print qq{\n};
+        print qq{    -c --changed-only      Write anything only, if any changes ware made.\n};
+        print qq{    -m --move              Move, then backut, then rename. Preserves attributes.\n};
+        print qq{    -P --prefix[=PREFIX]   Append PREFIX to filename and write there.\n};
+        print qq{    -S --suffix[=SUFFIX]   Append SUFFIX to filename and write there.\n};
+        print qq{    -r -R --recursive      Process directories recursively.\n};
+        print qq{\n};
+        print qq{    -h --help              Display this usage summary.\n};
+        print qq{    -V --version           Display version info and exit.\n};
+        print qq{    \n};
+        print qq{Example:\n};
+        print qq{    \n};
+        print qq{    \$ fed -a -d -r 's/br0k3n/broken/g' my_text_files/\n};
+        print qq{           |  |  |  |                  |\n};
+        print qq{           |  |  |  |                  '-- all files from 'my_text_files'.\n};
+        print qq{           |  |  |  '-- Substitute all occurances of 'br0k3n' with 'broken'.\n};
+        print qq{           |  |  '-- Dive into subdirectories.\n};
+        print qq{           |  '-- Display differences after processing each file.\n};
+        print qq{           '-- Ask for confirmation, before writing changes.\n};
+        print qq{\n};
+
         return 0;
     }
 
