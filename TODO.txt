@@ -33,9 +33,12 @@
 [X]     -S --suffix[=SUFFIX]
 [X]         Test cases
 [X]         Implementation
-[ ]     -a --ask
-[ ]         Test cases
-[ ]         Implementation
+[X]     -a --ask
+[X]         Test cases
+[X]         Implementation
+[X]     -p --pretend
+[X]         Test cases
+[X]         Implementation
 [ ]     -c --changed-only
 [ ]         Test cases
 [ ]         Implementation
@@ -51,9 +54,6 @@
 [ ]     -m --move
 [ ]         Test cases
 [ ]         Implementation
-[ ]     -p --pretend
-[ ]         Test cases
-[ ]         Implementation
 [ ]     -r -R --recursive
 [ ]         Test cases
 [ ]         Implementation
@@ -62,7 +62,9 @@
 [ ]         Implementation
 [ ] Bugs
 [ ]     Check if s/// will work OK when there is '\/' in it...
-[ ]     Dry-run each command, before even touching files
+[ ]     Dry-run each command, before even touching files, to see of they work.
+[ ]     Add test cases for commands, that check how they handle broken regexp.
+[ ]     Implement support for reporting about broken regexp
 [ ] Packaging
 [ ]     Set up Module::Build.
 [ ]     Upload to CPAN.

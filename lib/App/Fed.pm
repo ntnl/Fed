@@ -207,6 +207,10 @@ Do not do anything, just pretend and describe what would be done.
 
 This option overwrites I<-a> (with a warning).
 
+=cut
+
+$options_def{ 'p|pretend' } = \$options{'pretend'};
+
 =item -q --quiet --silent
 
 Output nothing, and if, then only to STDERR.
@@ -364,7 +368,11 @@ sub main { # {{{
 #    use Data::Dumper; warn Dumper \@files, \@commands;
 
     foreach my $file (@files) {
-        _process_file($file, \@commands);
+        my $continue = _process_file($file, \@commands);
+
+        if (not $continue) {
+            last;
+        }
     }
 
     return 0;
@@ -396,10 +404,47 @@ sub _process_file { # {{{
         $file_out = _rename_file($file, $options{'prefix'}, $options{'suffix'});
     }
 
+    if ($options{'ask'}) {
+        my $char = 1;
+        
+        while ($char) {
+            print "Write changes to " . $file_out . "? n = no, q = quit, y = yes, a = all : ";
+
+            read STDIN, $char, 1;
+
+            print $char . "\n";
+
+            $char = lc $char;
+
+            if ($char eq 'n') { 
+                return 1;
+            }
+
+            if ($char eq 'q') { 
+                return;
+            }
+
+            if ($char eq 'a') {
+                $options{'ask'} = 0;
+
+                last;
+            }
+
+            if ($char eq 'y') {
+                last;
+            }
+        }
+    }
+
+    # If running in 'pretend' mode - bail out just before writing anything...
+    if ($options{'pretend'}) {
+        return 1;
+    }
+
     # Write out modified content.
     write_file($file_out, $contents);
 
-    return;
+    return 1;
 } # }}}
 
 sub _rename_file { # {{{
@@ -548,6 +593,15 @@ Requires L<Term::ANSIColor>.
 =item --recipe=RECIPY
 
 Use recipe named I<RECIPY> from the APP::Fed::Coocbook.
+
+=item --check=Command
+
+Run 'C<Command file>' after applying changes.
+
+If F<Command> returns non-zero exit status, changes will be cancelled.
+
+F<fed> will create a tmp file containing modified content,
+and use it for test, before changing the original.
 
 =back
 
