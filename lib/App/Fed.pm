@@ -167,6 +167,10 @@ $options_def{ 'a|ask' } = \$options{'ask'};
 
 Write anything only, if any changes ware made.
 
+=cut
+
+$options_def{ 'c|changed-only' } = \$options{'changed-only'};
+
 =item -d --diff
 
 Show I<diff> between original and modified content, before writing changes.
@@ -394,8 +398,14 @@ sub _process_file { # {{{
         ( $contents, $something_was_done_here ) = $callback->($contents, $command);
 
         if ($something_was_done_here) {
-            $something_was_done = 1;
+            $something_was_done++;
         }
+    }
+
+    # If We are to write only in case there ware any changes...
+    if ($options{'changed-only'} and not $something_was_done) {
+        # ... then bail out, if there ware none.
+        return 1;
     }
 
     # Decide, where We will output.
@@ -404,15 +414,15 @@ sub _process_file { # {{{
         $file_out = _rename_file($file, $options{'prefix'}, $options{'suffix'});
     }
 
+    # If User wants to confirm - ask Him politely :)
     if ($options{'ask'}) {
         my $char = 1;
         
         while ($char) {
             print "Write changes to " . $file_out . "? n = no, q = quit, y = yes, a = all : ";
 
-            read STDIN, $char, 1;
-
-            print $char . "\n";
+            $char = <STDIN>;
+            chomp $char;
 
             $char = lc $char;
 

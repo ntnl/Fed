@@ -39,9 +39,9 @@
 [X]     -p --pretend
 [X]         Test cases
 [X]         Implementation
-[ ]     -c --changed-only
-[ ]         Test cases
-[ ]         Implementation
+[X]     -c --changed-only
+[X]         Test cases
+[X]         Implementation
 [ ]     -d --diff
 [ ]         Test cases
 [ ]         Implementation
