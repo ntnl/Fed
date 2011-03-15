@@ -11,7 +11,7 @@ package App::Fed::Cookbook;
 ################################################################################
 use warnings; use strict;
 
-my $VERSION = '0.01_alpha';
+my $VERSION = '0.01_50';
 
 =head1 NAME
 

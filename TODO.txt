@@ -1,5 +1,5 @@
 
-    Version 0.01_alpha
+    Version 0.01_50 (Alpha)
 
 [X] Devel stuff
 [X]     Make a GitHub repo
@@ -58,13 +58,11 @@
 [X]         Test cases
 [X]         Implementation
 [ ] Bugs
-[ ]     Check if s/// will work OK when there is '\/' in it...
-[ ]     Dry-run each command, before even touching files, to see of they work.
 [ ]     Add test cases for commands, that check how they handle broken regexp.
 [ ]     Implement support for reporting about broken regexp
-[ ]     Will not work with Windows filenames.
-[>] Packaging
-[>]     Set up Module::Build.
+[ ]     Check if s/// will work OK when there is '\/' in it...
+[-] Packaging
+[X]     Set up Module::Build.
 [ ]     Upload to CPAN.
 [ ]     Spread the news.
 
@@ -72,4 +70,10 @@
 
 [ ] STDIN / STDOUT support
 [ ] Color support
-
+[ ] Issues
+[ ]     Will not work with Windows filenames.
+[ ]     Dry-run each command, before even touching files, to see of they work and report problems quickly.
+[ ]     Stats at end of the run.
+[ ]     Support for validation/check command.
+[ ]     Support for named recipes.
+[ ]     Support for '-x' option.

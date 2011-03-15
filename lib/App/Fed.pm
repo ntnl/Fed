@@ -11,7 +11,7 @@ package App::Fed;
 ################################################################################
 use warnings; use strict;
 
-my $VERSION = '0.01_alpha'; # {{{
+my $VERSION = '0.01_50'; # {{{
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file write_file read_dir );
@@ -26,14 +26,20 @@ fed - file editor for filtering and transforming text, file-wide.
 
  fed [OPTION]... [COMMAND]... [input-file]...
  
- # Replace anything between 'foo' and 'bar' with space, one time.
- fed 's/foo.+?baz/ /' text_*.txt
+ # Replace first occurance of 'foo' and 'bar' (and all between) with space.
+ fed 's/foo.+?baz/foo baz/' text_*.txt
  
  # Strip comments from config files, each time show diff and ask:
  fed -a -d 'r/\s*#.+?$/m' *.conf
  
  # Remove HTML links.
  fed -c 's{<a.+?>(.+?)<\\\/a>}{$1}sg' page*.html
+
+=head1 DISCLAIMER
+
+This is an Alpha release. It may be unstable. It may corrupt your files.
+
+Use with caution, for evaluation purposes only.
 
 =head1 DESCRIPTION
 
@@ -49,13 +55,8 @@ or by inspecting changes (with F<diff>) and accepting them manually.
 
 =head1 COMMANDS
 
-Following commands are supported:
-B<s> (substitute),
-B<tr> (transcode),
-B<p> (pipe),
-B<r> (remove),
-and B<m> (match).
-Following separators are supported: B<//>, B<{}>, B<[]>.
+Following commands are supported: B<s> (substitute), B<tr> (transcode), B<p> (pipe),
+B<r> (remove), and B<m> (match). Following separators are supported: B<//>, B<{}>, B<[]>.
 
 Many commands can be provided in a row, they will all be applied one after another, each working on the output from previous one.
 

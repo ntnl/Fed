@@ -1,0 +1,26 @@
+---
+abstract: 'file editor for filtering and transforming text, file-wide.'
+author: []
+configure_requires:
+  Module::Build: 0.34
+generated_by: 'Module::Build version 0.3624'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: App-Fed
+provides:
+  App::Fed:
+    file: lib/App/Fed.pm
+    version: 0.01_50
+  App::Fed::Cookbook:
+    file: lib/App/Fed/Cookbook.pm
+    version: 0.01_50
+requires:
+  Carp::Assert::More: 1.10
+  File::Slurp: 9999.13
+  Getopt::Long: 2.36
+  perl: v5.10.0
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.01_50

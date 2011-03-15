@@ -1,0 +1,177 @@
+NAME
+    fed - file editor for filtering and transforming text, file-wide.
+
+SYNOPSIS
+     fed [OPTION]... [COMMAND]... [input-file]...
+ 
+     # Replace anything between 'foo' and 'bar' with space, one time.
+     fed 's/foo.+?baz/ /' text_*.txt
+ 
+     # Strip comments from config files, each time show diff and ask:
+     fed -a -d 'r/\s*#.+?$/m' *.conf
+ 
+     # Remove HTML links.
+     fed -c 's{<a.+?>(.+?)<\\\/a>}{$1}sg' page*.html
+
+DESCRIPTION
+    Fed is a replace/filter utility, working on per-line or per-file basis,
+    across multiple files, even going recursively into directories.
+
+    It aims to provide easy access to some functionality of *sed*, *awk* and
+    *Perl*.
+
+    By default it will replace files in-place, so you do not have to
+    pipe/move anything.
+
+    You can control the edit process either by having changed files written
+    under different name, or by inspecting changes (with diff) and accepting
+    them manually.
+
+COMMANDS
+    Following commands are supported: s (substitute), tr (transcode), p
+    (pipe), r (remove), and m (match). Following separators are supported:
+    //, {}, [].
+
+    Many commands can be provided in a row, they will all be applied one
+    after another, each working on the output from previous one.
+
+    Please see App::Fed::Cookbook for how those can be applied to real-life
+    situations.
+
+  s/PATTERN/EXPRESSION/MODIFIERS
+    Substitute, according to given expression.
+
+  tr/PATTERN/EXPRESSION/MODIFIERS
+    Transcode, according to given expression.
+
+  p/PATTERN/COMMAND/MODIFIERS
+    Pipe matched content into shell command, and use it's output as
+    replacement.
+
+  r/PATTERN/MODIFIERS
+    Remove parts, that match the regular expression.
+
+  m/PATTERN/MODIFIERS
+    Match parts of the filename and remove anything else.
+
+MODIFIERS
+    e   Evaluate EXPRESSION as Perl code, before replacing.
+
+    g   Enable global matching.
+
+    i   Do case-insensitive pattern matching.
+
+    m   Enable matching in multi-line mode.
+
+        That is, change "^" and "$" from matching the start or end of file
+        to matching the start or end of any line.
+
+    s   Change "." to match any character whatsoever, even a newline, which
+        normally it would not match.
+
+    Enabling 'm' and 's' as "/ms", they let the "." match any character
+    whatsoever, while still allowing "^" and "$" to match, respectively,
+    just after and just before newlines within the string.
+
+COMMAND LINE OPTIONS
+    -a --ask
+        Ask, before writing anything.
+
+    -c --changed-only
+        Write anything only, if any changes ware made.
+
+    -d --diff
+        Show *diff* between original and modified content, before writing
+        changes.
+
+        By default, program will not ask or wait for confirmation, just
+        describe the changes and continue. If you want to be able to inspect
+        and confirm changes, use with combination with *-a*.
+
+        This is useful to be able to quickly inspect - post-mortem - what
+        has been done.
+
+    --diff-command=COMMAND
+        What comparison command to run, defaults to: diff.
+
+    -h --help
+        Output a short help and exit.
+
+    -m --move
+        When used with *-P* or *-S*, fed will move the file first, then copy
+        it to the old name, and finally modify moved file.
+
+        This preserves hard links, ownership and other attributes.
+
+        If file is changed in-place, the option is silently ignored.
+
+    -p --pretend
+        Do not do anything, just pretend and describe what would be done.
+
+        This option overwrites *-a* (with a warning).
+
+    -q --quiet --silent
+        Output nothing, and if, then only to STDERR.
+
+    -r -R --recursive
+        Process directories recursively. If this option is not enabled,
+        those will be ignored (silently, unless in verbose mode).
+
+    -P --prefix[=PREFIX]
+        Instead of doing the change in-place, save changed file to a copy
+        with PREFIX added to the name.
+
+    -S --suffix[=SUFFIX]
+        Instead of doing the change in-place, save changed file to a copy
+        with SUFFIX added to the name.
+
+    -v --verbose
+        Explain what is being done.
+
+    -V --version
+        Display version info and exit.
+
+REGULAR EXPRESSIONS
+    This command uses Perl Regular Expressions. It will understand
+    everything, that the version of Perl on which it runs will accept.
+
+BUGS
+    Probably. None known at the moment.
+
+    Please report using CPAN RT or email to the author.
+
+TODO
+    Those are some interesting potential features, that may be implemented
+    in future version. If you need them, please notify the author.
+
+    -x --one-file-system
+        Do not cross file system boundaries.
+
+    --color --no-color
+        Enable (or disable) use of color in the output.
+
+        Requires Term::ANSIColor.
+
+    --recipe=RECIPY
+        Use recipe named *RECIPY* from the APP::Fed::Coocbook.
+
+    --check=Command
+        Run '"Command file"' after applying changes.
+
+        If Command returns non-zero exit status, changes will be cancelled.
+
+        fed will create a tmp file containing modified content, and use it
+        for test, before changing the original.
+
+    -s --stats --summary
+        On completion, dump summary of what was done.
+
+SEE ALSO
+    ack(1), awk(1), ed(1), grep(1), tr(1), perlre(1), sed(1)
+
+COPYRIGHT
+    Copyright (C) 2011 Bartłomiej /Natanael/ Syguła
+
+    This is free software. It is licensed, and can be distributed under the
+    same terms as Perl itself.
+

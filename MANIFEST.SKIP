@@ -1,0 +1,14 @@
+^\.git
+^\.gitignore$
+^cover_db
+
+^MYMETA.yml$
+^Build$
+^_build/
+^blib/
+
+^TODO.txt$
+
+\..*\.swp
+\..*\.swo
+

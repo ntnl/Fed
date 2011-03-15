@@ -12,7 +12,7 @@
 
 use warnings; use strict;
 
-my $VERSION = '0.01_alpha';
+my $VERSION = '0.01_50';
 
 use FindBin qw( $Bin );
 use lib $Bin .q{/../lib/};

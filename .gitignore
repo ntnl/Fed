@@ -1,3 +1,9 @@
 .*.swp
 .*.swo
 cover_db
+App-Fed-*.tar.gz
+Build
+_build/
+blib/
+MYMETA.yml
+
