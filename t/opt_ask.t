@@ -43,7 +43,7 @@ output_like(
     sub {
         App::Fed::main(q{-a}, q{s/world/universe/}, q{/tmp/yes-} . $PID . q{.txt});
     },
-    qr{Write changes},
+    qr{Write changes\?},
     undef,
     'Ask - Y.'
 );
@@ -51,7 +51,7 @@ output_like(
     sub {
         App::Fed::main(q{-a}, q{s/world/universe/}, q{/tmp/no-} . $PID . q{.txt});
     },
-    qr{Write changes},
+    qr{Write changes\?},
     undef,
     'Ask - N.'
 );
@@ -59,7 +59,7 @@ output_like(
     sub {
         App::Fed::main(q{-a}, q{s/world/universe/}, q{/tmp/quit-} . $PID . q{.txt});
     },
-    qr{Write changes},
+    qr{Write changes\?},
     undef,
     'Ask - Q.'
 );
@@ -89,7 +89,7 @@ output_like(
     sub {
         App::Fed::main(q{--ask}, q{s/world/universe/}, q{/tmp/all1-} . $PID . q{.txt}, q{/tmp/all2-} . $PID . q{.txt}, q{/tmp/all3-} . $PID . q{.txt});
     },
-    qr{Write changes},
+    qr{Write changes\?},
     undef,
     'Ask - N + A.'
 );

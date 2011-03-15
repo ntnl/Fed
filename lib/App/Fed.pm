@@ -14,7 +14,7 @@ use warnings; use strict;
 my $VERSION = '0.01_alpha'; # {{{
 
 use English qw( -no_match_vars );
-use File::Slurp qw( read_file write_file );
+use File::Slurp qw( read_file write_file read_dir );
 use Getopt::Long 2.36 qw( GetOptionsFromArray );
 # }}}
 
@@ -180,13 +180,17 @@ If you want to be able to inspect and confirm changes, use with combination with
 
 This is useful to be able to quickly inspect - post-mortem - what has been done.
 
+=cut
+
+$options_def{ 'd|diff' } = \$options{'diff'};
+
 =item --diff-command=COMMAND
 
 What comparison command to run, defaults to: F<diff>.
 
-=item -f options-file --file=options-file
+=cut
 
-Parse contents of options-file, as if it was part of the command line.
+$options_def{ 'diff-command' } = \$options{'diff-command'};
 
 =item -h --help
 
@@ -204,6 +208,10 @@ and finally modify moved file.
 This preserves hard links, ownership and other attributes.
 
 If file is changed in-place, the option is silently ignored.
+
+=cut
+
+$options_def{ 'm|move' } = \$options{'move'};
 
 =item -p --pretend
 
@@ -223,9 +231,9 @@ Output nothing, and if, then only to STDERR.
 
 Process directories recursively. If this option is not enabled, those will be ignored (silently, unless in verbose mode).
 
-=item -v --verbose
+=cut
 
-Explain what is being done.
+$options_def{ 'r|R|recursive' } = \$options{'recursive'};
 
 =item -P --prefix[=PREFIX]
 
@@ -242,6 +250,14 @@ Instead of doing the change in-place, save changed file to a copy with SUFFIX ad
 =cut
 
 $options_def{ 'S|suffix=s' } = \$options{'suffix'};
+
+=item -v --verbose
+
+Explain what is being done.
+
+=cut
+
+$options_def{ 'v|verbose' } = \$options{'verbose'};
 
 =item -V --version
 
@@ -366,12 +382,23 @@ sub main { # {{{
         }
 
         # It was not recognised as regular expression, therefore it must be a file.
-        push @files, $param;
+        if (-f $param) {
+            push @files, $param;
+        }
+        elsif ($options{'recursive'} and -d $param) {
+            push @files, _recure_into_dir($param);
+        }
     }
 
 #    use Data::Dumper; warn Dumper \@files, \@commands;
 
+    my $i = 1;
+    my $count = scalar @files;
     foreach my $file (@files) {
+        my $percent = int 100 * $i / $count;
+        _verbose("File $i of $count ($percent%)\n");
+        $i++;
+
         my $continue = _process_file($file, \@commands);
 
         if (not $continue) {
@@ -379,11 +406,45 @@ sub main { # {{{
         }
     }
 
+    _verbose("Done.\n");
+
     return 0;
+} # }}}
+
+sub _recure_into_dir { # {{{
+    my ( $dir ) = @_;
+    
+    _verbose("Reading " . $dir . "\n");
+
+    my @files;
+
+    my @fs_items = read_dir($dir);
+    foreach my $item (sort @fs_items) {
+        if (-f $dir . q{/} . $item) {
+            push @files, $dir . q{/} . $item;
+
+            next;
+        }
+        
+        if (-d $dir . q{/} . $item) {
+            push @files, _recure_into_dir($dir . q{/} . $item);
+        }
+    }
+
+    return @files;
 } # }}}
 
 sub _process_file { # {{{
     my ( $file, $commands ) = @_;
+
+    # If We have printed something, while working with this file,
+    # rise this flag - it will add a separator (newline) in case there will be some
+    # stuff printed later.
+    my $push_newline = 0;
+
+    if ($options{'verbose'}) {
+        $push_newline = _print_file_name($file, $push_newline);
+    }
 
     # Read in the file.
     my $contents = read_file($file);
@@ -405,6 +466,9 @@ sub _process_file { # {{{
     # If We are to write only in case there ware any changes...
     if ($options{'changed-only'} and not $something_was_done) {
         # ... then bail out, if there ware none.
+        
+        _verbose("  No changes.\n\n");
+
         return 1;
     }
 
@@ -413,16 +477,52 @@ sub _process_file { # {{{
     if ($options{'prefix'} or $options{'suffix'}) {
         $file_out = _rename_file($file, $options{'prefix'}, $options{'suffix'});
     }
+    
+    if ($file ne $file_out) {
+        _verbose("  Target: $file_out\n");
+    }
+
+    # This is a good place to show differences, if they ware requested.
+    if ($options{'diff'}) {
+        $push_newline = _print_file_name($file, $push_newline);
+
+        print "\n  Diff:\n";
+
+        my $diff_command = ( $options{'diff-command'} or 'diff' );
+
+        my $tmp_file = q{/tmp/fed-diff-}. $PID;
+
+        write_file($tmp_file, $contents);
+        my $fh;
+        my $has_changes = 0;
+        open $fh, q{-|}, $diff_command, $file, $tmp_file;
+        while (my $line = <$fh>) {
+            print q{    } . $line;
+
+            $has_changes = 1;
+        }
+        close $fh;
+
+        unlink $tmp_file;
+        
+        if (not $has_changes) {
+            print "    (no changes)\n";
+        }
+    }
 
     # If User wants to confirm - ask Him politely :)
     if ($options{'ask'}) {
         my $char = 1;
         
+        $push_newline = _print_file_name($file, $push_newline);
+
         while ($char) {
-            print "Write changes to " . $file_out . "? n = no, q = quit, y = yes, a = all : ";
+            print "\n";
+            print q{  Write changes? (n = no, q = quit, y = yes, a = all) : };
 
             $char = <STDIN>;
             chomp $char;
+            print "\n";
 
             $char = lc $char;
 
@@ -448,12 +548,31 @@ sub _process_file { # {{{
 
     # If running in 'pretend' mode - bail out just before writing anything...
     if ($options{'pretend'}) {
-        return 1;
+        _verbose("  Would be updated.\n");
+    }
+    else {
+        _verbose("  Updated.\n");
+
+        # Write out modified content.
+        if ($file ne $file_out and $options{'move'}) {
+            rename $file, $file_out;
+
+            # Copy contents to the old name...
+            write_file($file, read_file($file_out));
+
+            # Write into new location.
+            write_file($file_out, $contents);
+        }
+        else {
+            # Write out.
+            write_file($file_out, $contents);
+        }
     }
 
-    # Write out modified content.
-    write_file($file_out, $contents);
-
+    if ($push_newline) {
+        print "\n";
+    }
+    
     return 1;
 } # }}}
 
@@ -471,6 +590,16 @@ sub _rename_file { # {{{
     }
 
     return $path;
+} # }}}
+
+sub _print_file_name { # {{{
+    my ($file_name, $omit) = @_;
+
+    if (not $omit) {
+        print $file_name . qq{ :\n};
+    }
+
+    return 1;
 } # }}}
 
 sub _handle_s { # {{{
@@ -577,6 +706,18 @@ sub _handle_r { # {{{
     return ($contents, $replaced);
 } # }}}
 
+sub _verbose { # {{{
+    my ( $msg ) = @_;
+
+    if (not $options{'verbose'}) {
+        return;
+    }
+    
+    print $msg;
+
+    return;
+} # }}}
+
 =head1 BUGS
 
 Probably. None known at the moment.
@@ -612,6 +753,10 @@ If F<Command> returns non-zero exit status, changes will be cancelled.
 
 F<fed> will create a tmp file containing modified content,
 and use it for test, before changing the original.
+
+=item -s --stats --summary
+
+On completion, dump summary of what was done.
 
 =back
 

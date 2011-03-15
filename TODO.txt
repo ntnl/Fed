@@ -20,7 +20,7 @@
 [X]     r
 [X]         Test cases
 [X]         Implementation
-[>] Command line options
+[X] Command line options
 [X]     -h --help
 [X]         Test cases
 [X]         Implementation
@@ -42,35 +42,34 @@
 [X]     -c --changed-only
 [X]         Test cases
 [X]         Implementation
-[ ]     -d --diff
-[ ]         Test cases
-[ ]         Implementation
-[ ]     --diff-command=COMMAND
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -f options-file --file=options-file
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -m --move
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -r -R --recursive
-[ ]         Test cases
-[ ]         Implementation
-[ ]     -v --verbose
-[ ]         Test cases
-[ ]         Implementation
+[X]     -d --diff
+[X]         Test cases
+[X]         Implementation
+[X]     --diff-command=COMMAND
+[X]         Test cases
+[X]         Implementation
+[X]     -m --move
+[X]         Test cases
+[X]         Implementation
+[X]     -r -R --recursive
+[X]         Test cases
+[X]         Implementation
+[X]     -v --verbose
+[X]         Test cases
+[X]         Implementation
 [ ] Bugs
 [ ]     Check if s/// will work OK when there is '\/' in it...
 [ ]     Dry-run each command, before even touching files, to see of they work.
 [ ]     Add test cases for commands, that check how they handle broken regexp.
 [ ]     Implement support for reporting about broken regexp
-[ ] Packaging
-[ ]     Set up Module::Build.
+[ ]     Will not work with Windows filenames.
+[>] Packaging
+[>]     Set up Module::Build.
 [ ]     Upload to CPAN.
 [ ]     Spread the news.
 
     Future TODO:
 
 [ ] STDIN / STDOUT support
+[ ] Color support
 
