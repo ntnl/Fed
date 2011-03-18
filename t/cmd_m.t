@@ -21,7 +21,10 @@ use Test::More;
 # Debug:
 use lib $Bin . q{/../lib};
 
-plan tests => 4;
+plan tests =>
+    + 4 # Normal tests
+    + 2 # No-match test.
+;
 
 use App::Fed;
 
@@ -56,6 +59,21 @@ foo bar foo bar foo bar foo baz
 foo baz },
     q{Simple match - check},
 );
+
+is(
+    App::Fed::main("m/zxcvghjkop/igs", q{/tmp/} . $PID . q{.txt}),
+    0,
+    'No-match test'
+);
+is(
+    read_file(q{/tmp/} . $PID . q{.txt}),
+    q{foo bar foo bar
+foo bar foo bar foo bar foo bar
+foo bar foo bar foo bar foo baz
+foo baz },
+    q{No-match test - check},
+);
+
 system q{rm}, q{-f}, q{/tmp/} . $PID . q{.txt};
 
 

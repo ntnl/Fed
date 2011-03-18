@@ -358,7 +358,7 @@ sub main { # {{{
 #            warn qq{ $command, $guts, $modifiers };
 
             my ( $is_regexp, $pattern, $expression );
-            if ($guts =~ m{^/(.+?)/((.*?)/)?$}) {
+            if ($guts =~ m{^/(.+?)(?<!\\)/((.*?)/)?$}) {
                 ( $is_regexp, $pattern, $expression ) = ( 1, $1, $3 );
             }
             elsif ($guts =~ m{^\{(.+?)\}(\{(.*?)\})??$}) {
@@ -393,6 +393,11 @@ sub main { # {{{
 
 #    use Data::Dumper; warn Dumper \@files, \@commands;
 
+    my $failures = _check_regs(\@commands);
+    if ($failures) {
+        return 4;
+    }
+
     my $i = 1;
     my $count = scalar @files;
     foreach my $file (@files) {
@@ -410,6 +415,34 @@ sub main { # {{{
     _verbose("Done.\n");
 
     return 0;
+} # }}}
+
+sub _check_regs { # {{{
+    my ( $commands ) = @_;
+
+    my $failures = 0;
+
+    foreach my $command (@{ $commands }) {
+        my $ok = eval {
+            my $regexp = $command->{'pattern'};
+
+            my $re = qr{$regexp};
+
+            return $re;
+        };
+
+        if ($EVAL_ERROR or not $ok) {
+            print STDERR "Invalid REGEXP: (please correct)\n   ". $command->{'pattern'} ."\n\n";
+            if ($EVAL_ERROR) {
+                print STDERR $EVAL_ERROR;
+                print STDERR "\n";
+            }
+
+            $failures++;
+        }
+    }
+
+    return $failures;
 } # }}}
 
 sub _recure_into_dir { # {{{
@@ -611,12 +644,6 @@ sub _handle_s { # {{{
     # Eval is not the best option, but I have no better solution for now.
     my $replaced = eval q{ $contents =~ s/} . $match . q{/} . $replace . q{/} . $modifiers;
 
-    if ($EVAL_ERROR) {
-        warn $EVAL_ERROR;
-    }
-
-#    warn $replaced;
-
     return ($contents, $replaced);
 } # }}}
 
@@ -627,12 +654,6 @@ sub _handle_tr { # {{{
 
     # Eval is not the best option, but I have no better solution for now.
     my $replaced = eval q{ $contents =~ tr/} . $tr_from . q{/} . $tr_to . q{/} . $modifiers;
-
-    if ($EVAL_ERROR) {
-        warn $EVAL_ERROR;
-    }
-
-#    warn $replaced;
 
     return ($contents, $replaced);
 } # }}}
@@ -646,12 +667,6 @@ sub _handle_p { # {{{
 
     # Eval is not the best option, but I have no better solution for now.
     my $replaced = eval q{ $contents =~ s/(} . $match . q{)/_p_pipe($pipe_command, $1)/e} . $modifiers;
-
-    if ($EVAL_ERROR) {
-        warn $EVAL_ERROR;
-    }
-
-#    warn $replaced;
 
     return ($contents, $replaced);
 } # }}}
@@ -679,10 +694,6 @@ sub _handle_m { # {{{
 
     my @matches = eval q{ return ( $contents =~ m/(} . $match . q{)/} . $modifiers .q{ ) };
 
-    if ($EVAL_ERROR) {
-        warn $EVAL_ERROR;
-    }
-
     if (scalar @matches) {
         return ( (join q{}, @matches), 1);
     }
@@ -697,12 +708,6 @@ sub _handle_r { # {{{
 
     # Eval is not the best option, but I have no better solution for now.
     my $replaced = eval q{ $contents =~ s/} . $match . q{//} . $modifiers;
-
-    if ($EVAL_ERROR) {
-        warn $EVAL_ERROR;
-    }
-
-#    warn $replaced;
 
     return ($contents, $replaced);
 } # }}}

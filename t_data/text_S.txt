@@ -1,0 +1,3 @@
+/Foo/Bar/Slash/Baz
+/Foo/Slash/Bar/Baz
+/Foo/Baz/Slash/Bar

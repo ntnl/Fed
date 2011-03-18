@@ -1,4 +1,5 @@
 Build.PL
+Changes
 lib/App/Fed.pm
 lib/App/Fed/Cookbook.pm
 MANIFEST
@@ -22,8 +23,6 @@ t/opt_recursive.t
 t/opt_suffix.t
 t/opt_verbose.t
 t/opt_version.t
-t_data/.stdin_na.txt.swp
-t_data/.stdin_ynq.txt.swp
 t_data/config_A.conf
 t_data/data_A.yaml
 t_data/html_A.html
@@ -33,6 +32,7 @@ t_data/stdin_ynq.txt
 t_data/text_A.txt
 t_data/text_B.txt
 t_data/text_H.txt
+t_data/text_S.txt
 README
 LICENSE
 META.yml

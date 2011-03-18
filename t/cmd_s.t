@@ -16,12 +16,16 @@ use FindBin qw( $Bin );
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
 use Test::More;
+use Test::Output;
 # }}}
 
 # Debug:
 use lib $Bin . q{/../lib};
 
-plan tests => 6;
+plan tests =>
+    + 8 # Working use-cases
+    + 1 # Crash test: broken regexp
+;
 
 use App::Fed;
 
@@ -112,5 +116,30 @@ Ut quis lectus lectus, in eleifend velit. Aenean et arcu a massa eleifend commod
 system q{rm}, q{-f}, q{/tmp/} . $PID . q{.txt};
 
 
+
+system q{cp}, $Bin . q{/../t_data/text_S.txt}, q{/tmp/} . $PID . q{.txt};
+is(
+    App::Fed::main(q{s/Slash\/Bar/Slash-Bar/g}, q{/tmp/} . $PID . q{.txt}),
+    0,
+    q{Replace with '/' in it}
+);
+is(
+    read_file(q{/tmp/} . $PID . q{.txt}),
+    q{/Foo/Bar/Slash/Baz
+/Foo/Slash-Bar/Baz
+/Foo/Baz/Slash-Bar
+},
+    q{Replace with '/' in it - check}
+);
+
+
+# Crash tests.
+stderr_like(
+    sub {
+        App::Fed::main(q{s/Broken(Regexp//g}, q{/tmp/} . $PID . q{.txt});
+    },
+    qr{Invalid REGEXP:},
+    'Broken regexp works OK.'
+);
 
 # vim: fdm=marker
