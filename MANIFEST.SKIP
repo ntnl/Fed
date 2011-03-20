@@ -12,4 +12,6 @@
 \..*\.swp
 \..*\.swo
 
+^t\/\_tmp\_\d+
+
 App-Fed-.+?\.tar\.gz
