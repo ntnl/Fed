@@ -13,6 +13,8 @@ use warnings; use strict;
 
 my $VERSION = '0.01_90';
 
+=encoding UTF-8
+
 =head1 NAME
 
 App::Fed::Cookbook - recipes for B<fed>.

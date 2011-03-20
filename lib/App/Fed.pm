@@ -18,6 +18,8 @@ use File::Slurp qw( read_file write_file read_dir );
 use Getopt::Long 2.36 qw( GetOptionsFromArray );
 # }}}
 
+=encoding UTF-8
+
 =head1 NAME
 
 fed - file editor for filtering and transforming text, file-wide.
