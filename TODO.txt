@@ -1,4 +1,22 @@
 
+    Future TODO:
+
+[ ] STDIN / STDOUT support
+[ ] Color support
+[ ] Issues
+[ ]     Will not work with Windows filenames.
+[ ]     Stats at end of the run.
+[ ]     Support for validation/check command.
+[ ]     Support for named recipes.
+[ ]     Support for '-x' option.
+
+    Version 0.01_90 (Beta)
+
+[X] Do not use /tmp in tests.
+[X] Quote '$' in regexps supplied by the User.
+[X] When both 'ask' and 'pretend' used, 'ask' wins.
+[X] Recipe for changing version in Perl modules added.
+
     Version 0.01_50 (Alpha)
 
 [X] Devel stuff
@@ -62,18 +80,7 @@
 [X]     Implement support for reporting about broken regexp
 [X]     Dry-run each command, before even touching files, to see of they work and report problems quickly.
 [X]     Check if s/// will work OK when there is '\/' in it...
-[-] Packaging
+[X] Packaging
 [X]     Set up Module::Build.
-[ ]     Upload to CPAN.
-[ ]     Spread the news.
-
-    Future TODO:
-
-[ ] STDIN / STDOUT support
-[ ] Color support
-[ ] Issues
-[ ]     Will not work with Windows filenames.
-[ ]     Stats at end of the run.
-[ ]     Support for validation/check command.
-[ ]     Support for named recipes.
-[ ]     Support for '-x' option.
+[X]     Upload to CPAN.
+[X]     Spread the news.

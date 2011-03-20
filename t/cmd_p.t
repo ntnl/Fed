@@ -25,16 +25,21 @@ plan tests => 2;
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
 
-system q{cp}, $Bin . q{/../t_data/text_B.txt}, q{/tmp/} . $PID . q{.txt};
+
+system q{cp}, $Bin . q{/../t_data/text_B.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 is(
-    App::Fed::main("p/^foo.+?foo\$/sort/gsim", q{/tmp/} . $PID . q{.txt}),
+    App::Fed::main("p/^foo.+?foo\$/sort/gsim", $Bin . q{/_tmp_} . $PID . q{/test.txt}),
     0,
     'Sort using pipe'
 );
 is(
-    read_file(q{/tmp/} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
     q{bar baz foo
 baz foo bar
 foo bar baz
@@ -52,7 +57,7 @@ bar baz foo baz bar
 },
     q{Sort using pipe - check},
 );
-system q{rm}, q{-f}, q{/tmp/} . $PID . q{.txt};
+system q{rm}, q{-f}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 
 
 

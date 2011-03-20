@@ -26,22 +26,27 @@ plan tests => 6 + 4;
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/yes-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/no-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/quit-} . $PID . q{.txt};
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/all1-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/all2-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/all3-} . $PID . q{.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/yes.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/no.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/quit.txt};
+
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/all1.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/all2.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/all3.txt};
 
 close STDIN;
 open STDIN, q{<}, $Bin . q{/../t_data/stdin_ynq.txt};
 
 output_like(
     sub {
-        App::Fed::main(q{-a}, q{s/world/universe/}, q{/tmp/yes-} . $PID . q{.txt});
+        App::Fed::main(q{-a}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/yes.txt});
     },
     qr{Write changes\?},
     undef,
@@ -49,7 +54,7 @@ output_like(
 );
 output_like(
     sub {
-        App::Fed::main(q{-a}, q{s/world/universe/}, q{/tmp/no-} . $PID . q{.txt});
+        App::Fed::main(q{-a}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/no.txt});
     },
     qr{Write changes\?},
     undef,
@@ -57,7 +62,7 @@ output_like(
 );
 output_like(
     sub {
-        App::Fed::main(q{-a}, q{s/world/universe/}, q{/tmp/quit-} . $PID . q{.txt});
+        App::Fed::main(q{-a}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/quit.txt});
     },
     qr{Write changes\?},
     undef,
@@ -65,17 +70,17 @@ output_like(
 );
 
 is(
-    read_file(q{/tmp/yes-} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_}. $PID .q{/yes.txt}),
     qq{Hello universe!\n},
     q{Ask - Y - check},
 );
 is(
-    read_file(q{/tmp/no-} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_}. $PID .q{/no.txt}),
     qq{Hello world!\n},
     q{Ask - N - check},
 );
 is(
-    read_file(q{/tmp/quit-} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_}. $PID .q{/quit.txt}),
     qq{Hello world!\n},
     q{Ask - Q - check},
 );
@@ -87,25 +92,25 @@ open STDIN, q{<}, $Bin . q{/../t_data/stdin_na.txt};
 
 output_like(
     sub {
-        App::Fed::main(q{--ask}, q{s/world/universe/}, q{/tmp/all1-} . $PID . q{.txt}, q{/tmp/all2-} . $PID . q{.txt}, q{/tmp/all3-} . $PID . q{.txt});
+        App::Fed::main(q{--ask}, q{-p}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/all1.txt}, $Bin . q{/_tmp_}. $PID .q{/all2.txt}, $Bin . q{/_tmp_}. $PID .q{/all3.txt});
     },
-    qr{Write changes\?},
-    undef,
-    'Ask - N + A.'
+    qr{Write changes\?}s,
+    qr{'ask' overwrites 'pretend'}s,
+    'Ask - N + A. (and it overwrites pretend too)'
 );
 
 is(
-    read_file(q{/tmp/all1-} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_}. $PID .q{/all1.txt}),
     qq{Hello world!\n},
     q{Ask - A 1 - check},
 );
 is(
-    read_file(q{/tmp/all2-} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_}. $PID .q{/all2.txt}),
     qq{Hello universe!\n},
     q{Ask - A 2 - check},
 );
 is(
-    read_file(q{/tmp/all3-} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_}. $PID .q{/all3.txt}),
     qq{Hello universe!\n},
     q{Ask - A 3 - check},
 );

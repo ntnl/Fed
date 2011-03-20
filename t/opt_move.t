@@ -26,28 +26,33 @@ plan tests => 8;
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/moved_short-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/moved_long-} . $PID . q{.txt};
 
-my @stat_before_short = stat q{/tmp/moved_short-} . $PID . q{.txt};
-my @stat_before_long  = stat q{/tmp/moved_long-}  . $PID . q{.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/moved_short.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/moved_long.txt};
+
+my @stat_before_short = stat $Bin . q{/_tmp_}. $PID .q{/moved_short.txt};
+my @stat_before_long  = stat $Bin . q{/_tmp_}. $PID .q{/moved_long.txt};
 
 
 is (
-    App::Fed::main(q{-m}, q{-P}, q{now_}, q{s/world/universe/}, q{/tmp/moved_short-} . $PID . q{.txt}),
+    App::Fed::main(q{-m}, q{-P}, q{now_}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/moved_short.txt}),
     0,
     q{Move - short version}
 );
 is (
-    App::Fed::main(q{--move}, q{-P}, q{now_}, q{s/world/universe/}, q{/tmp/moved_long-} . $PID . q{.txt}),
+    App::Fed::main(q{--move}, q{-P}, q{now_}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/moved_long.txt}),
     0,
     q{Move - long version}
 );
 
 
-my @stat_after_short = stat q{/tmp/now_moved_short-} . $PID . q{.txt};
-my @stat_after_long  = stat q{/tmp/now_moved_long-}  . $PID . q{.txt};
+my @stat_after_short = stat $Bin . q{/_tmp_}. $PID .q{/now_moved_short.txt};
+my @stat_after_long  = stat $Bin . q{/_tmp_}. $PID .q{/now_moved_long.txt};
 
 is(
     $stat_before_short[1],
@@ -62,23 +67,23 @@ is(
 );
 
 is (
-    scalar read_file(q{/tmp/now_moved_short-} . $PID . q{.txt}),
+    scalar read_file($Bin . q{/_tmp_}. $PID .q{/now_moved_short.txt}),
     qq{Hello universe!\n},
     q{Move - short version - check content - new}
 );
 is (
-    scalar read_file(q{/tmp/now_moved_long-} . $PID . q{.txt}),
+    scalar read_file($Bin . q{/_tmp_}. $PID .q{/now_moved_long.txt}),
     qq{Hello universe!\n},
     q{Move - long version - check content - new}
 );
 
 is (
-    scalar read_file(q{/tmp/moved_short-} . $PID . q{.txt}),
+    scalar read_file($Bin . q{/_tmp_}. $PID .q{/moved_short.txt}),
     qq{Hello world!\n},
     q{Move - short version - check content - old}
 );
 is (
-    scalar read_file(q{/tmp/moved_long-} . $PID . q{.txt}),
+    scalar read_file($Bin . q{/_tmp_}. $PID .q{/moved_long.txt}),
     qq{Hello world!\n},
     q{Move - long version - check content - old}
 );

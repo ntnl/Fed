@@ -11,7 +11,7 @@ package App::Fed::Cookbook;
 ################################################################################
 use warnings; use strict;
 
-my $VERSION = '0.01_50';
+my $VERSION = '0.01_90';
 
 =head1 NAME
 
@@ -22,6 +22,10 @@ App::Fed::Cookbook - recipes for B<fed>.
 =head2 Merge white spaces (spaces and tabs).
 
  fed 's/\s+/ /g' file
+
+=head2 Change $VERSION in all modules of a package
+
+ fed -r "s/VERSION\s*=\s*'0.01_50'/VERSION = '0.01_90'/" lib
 
 =head1 SEE ALSO
 

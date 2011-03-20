@@ -12,7 +12,8 @@ my $build = Module::Build->new(
     create_license => 1,
 
     configure_requires => {
-        'Module::Build' => 0.34
+        'Module::Build' => q{0.34},
+        'Test::Output'  => q{0.16},
     },
     requires => {
         'perl' => '5.10.0',

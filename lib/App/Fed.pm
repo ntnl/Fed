@@ -11,7 +11,7 @@ package App::Fed;
 ################################################################################
 use warnings; use strict;
 
-my $VERSION = '0.01_50'; # {{{
+my $VERSION = '0.01_90'; # {{{
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file write_file read_dir );
@@ -346,6 +346,12 @@ sub main { # {{{
         return 0;
     }
 
+    if ($options{'ask'} and $options{'pretend'}) {
+        print STDERR "Note: 'ask' overwrites 'pretend'!\n";
+
+        delete $options{'pretend'};
+    }
+
     # Isolate commands from files.
     my @commands;
     my @files;
@@ -370,6 +376,16 @@ sub main { # {{{
 
             if ($command_spec{$command} and $is_regexp) {
                 # This IS a command :)
+                # Do sanity-quoting to avoid 'variable injection'
+                $pattern =~ s{(?<!\\)\$([^0-9])}{\\\$$1}gs;
+
+                # Quote '/' as well...
+                $pattern =~ s{(?<!\\)\/}{\\\/}gs;
+
+                if ($expression) {
+                    $expression =~ s{(?<!\\)\$([^0-9])}{\\\$$1}gs;
+                    $expression =~ s{(?<!\\)\/}{\\\/}gs;
+                }
                 push @commands, {
                     command   => $command,
                     pattern   => $pattern,
@@ -516,6 +532,10 @@ sub _process_file { # {{{
         _verbose("  Target: $file_out\n");
     }
 
+    # Assumption is, that if regexp returns true, then there ware changes.
+    # If running with --diff, this can actually be verified :)
+    my $has_changes = $something_was_done;
+
     # This is a good place to show differences, if they ware requested.
     if ($options{'diff'}) {
         $push_newline = _print_file_name($file, $push_newline);
@@ -528,7 +548,7 @@ sub _process_file { # {{{
 
         write_file($tmp_file, $contents);
         my $fh;
-        my $has_changes = 0;
+        $has_changes = 0;
         open $fh, q{-|}, $diff_command, $file, $tmp_file;
         while (my $line = <$fh>) {
             print q{    } . $line;
@@ -545,9 +565,9 @@ sub _process_file { # {{{
     }
 
     # If User wants to confirm - ask Him politely :)
-    if ($options{'ask'}) {
+    if ($has_changes and $options{'ask'}) {
         my $char = 1;
-        
+
         $push_newline = _print_file_name($file, $push_newline);
 
         while ($char) {
@@ -581,12 +601,17 @@ sub _process_file { # {{{
     }
 
     # If running in 'pretend' mode - bail out just before writing anything...
-    if ($options{'pretend'}) {
-        _verbose("  Would be updated.\n");
+    if ($options{'pretend'} and not $has_changes) {
+        $push_newline = _print_file_name($file, $push_newline);
+
+        print "\n  Would be skipped.\n";
+    }
+    elsif ($options{'pretend'}) {
+        $push_newline = _print_file_name($file, $push_newline);
+
+        print "\n  Would be updated.\n";
     }
     else {
-        _verbose("  Updated.\n");
-
         # Write out modified content.
         if ($file ne $file_out and $options{'move'}) {
             rename $file, $file_out;
@@ -601,6 +626,8 @@ sub _process_file { # {{{
             # Write out.
             write_file($file_out, $contents);
         }
+
+        _verbose("  Updated.\n");
     }
 
     if ($push_newline) {

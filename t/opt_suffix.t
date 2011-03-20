@@ -25,21 +25,26 @@ plan tests => 3;
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/} . $PID . q{.txt};
+
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 is(
-    App::Fed::main(q{-S}, q{.new}, q{s/world/universe/}, q{/tmp/} . $PID . q{.txt}),
+    App::Fed::main(q{-S}, q{.new}, q{s/world/universe/}, $Bin . q{/_tmp_} . $PID . q{/test.txt}),
     0,
     'Save to file with suffix added to the name.'
 );
 is(
-    read_file(q{/tmp/} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
     qq{Hello world!\n},
     q{Siffix - check original},
 );
 is(
-    read_file(q{/tmp/} . $PID . q{.txt.new}),
+    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt.new}),
     qq{Hello universe!\n},
     q{Suffix - check result},
 );

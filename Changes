@@ -1,3 +1,11 @@
+    
+    0.01_90 - 2011-03-20 - Beta release.
+
+o Do not use /tmp in tests.
+o Quote '$' in regexps supplied by the User.
+o When both 'ask' and 'pretend' used, 'ask' wins.
+o Recipe for changing version in Perl modules added.
+
 
     0.01_50 - 2011-03-18 - Alpha release.
 

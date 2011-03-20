@@ -28,31 +28,35 @@ plan tests =>
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
 
-system q{cp}, $Bin . q{/../t_data/text_B.txt}, q{/tmp/} . $PID . q{.txt};
+system q{cp}, $Bin . q{/../t_data/text_B.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 is(
-    App::Fed::main("m/foo ...\\s/is", q{/tmp/} . $PID . q{.txt}),
+    App::Fed::main("m/foo ...\\s/is", $Bin .q{/_tmp_} . $PID . q{/test.txt}),
     0,
     'Simple match'
 );
 is(
-    read_file(q{/tmp/} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
     q{foo bar },
     q{Simple match - check},
 );
-system q{rm}, q{-f}, q{/tmp/} . $PID . q{.txt};
+system q{rm}, q{-f}, $Bin . q{/_tmp_} . $PID . q{/test_.txt};
 
 
 
-system q{cp}, $Bin . q{/../t_data/text_B.txt}, q{/tmp/} . $PID . q{.txt};
+system q{cp}, $Bin . q{/../t_data/text_B.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 is(
-    App::Fed::main("m/foo ...\\s/igs", q{/tmp/} . $PID . q{.txt}),
+    App::Fed::main("m/foo ...\\s/igs", $Bin . q{/_tmp_} . $PID . q{/test.txt}),
     0,
     'Simple match'
 );
 is(
-    read_file(q{/tmp/} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
     q{foo bar foo bar
 foo bar foo bar foo bar foo bar
 foo bar foo bar foo bar foo baz
@@ -61,12 +65,12 @@ foo baz },
 );
 
 is(
-    App::Fed::main("m/zxcvghjkop/igs", q{/tmp/} . $PID . q{.txt}),
+    App::Fed::main("m/zxcvghjkop/igs", $Bin . q{/_tmp_} . $PID . q{/test.txt}),
     0,
     'No-match test'
 );
 is(
-    read_file(q{/tmp/} . $PID . q{.txt}),
+    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
     q{foo bar foo bar
 foo bar foo bar foo bar foo bar
 foo bar foo bar foo bar foo baz
@@ -74,7 +78,7 @@ foo baz },
     q{No-match test - check},
 );
 
-system q{rm}, q{-f}, q{/tmp/} . $PID . q{.txt};
+system q{rm}, q{-f}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 
 
 

@@ -26,18 +26,23 @@ plan tests => 4;
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/yes-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/no-} . $PID . q{.txt};
+
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/yes.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/no.txt};
 
 is(
-    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ world/}, q{/tmp/yes-} . $PID . q{.txt}),
+    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ world/}, $Bin . q{/_tmp_}. $PID .q{/yes.txt}),
     0,
     'Changes-only - matched.'
 );
 is(
-    scalar ( -f q{/tmp/new-yes-} . $PID . q{.txt} ),
+    scalar ( -f $Bin . q{/_tmp_}. $PID .q{/new-yes.txt} ),
     1,
     'Changes-only - matched - check.'
 );
@@ -45,12 +50,12 @@ is(
 
 
 is(
-    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ universe/}, q{/tmp/no-} . $PID . q{.txt}),
+    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ universe/}, $Bin . q{/_tmp_}. $PID .q{/no.txt}),
     0,
     'Changes-only - missed.'
 );
 is(
-    scalar ( -f q{/tmp/new-no-} . $PID . q{.txt} ),
+    scalar ( -f $Bin . q{/_tmp_}. $PID .q{/new-no.txt} ),
     undef,
     'Changes-only - missed - check.'
 );

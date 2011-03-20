@@ -26,16 +26,21 @@ plan tests => 2;
 
 use App::Fed;
 
+mkdir $Bin .q{/_tmp_}. $PID;
+END {
+    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
+}
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/yes-} . $PID . q{.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, q{/tmp/no-} . $PID . q{.txt};
+
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/yes.txt};
+system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/no.txt};
 
 
 output_is(
     sub {
-        App::Fed::main(q{-d}, q{s/world/universe/}, q{/tmp/yes-} . $PID . q{.txt});
+        App::Fed::main(q{-d}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/yes.txt});
     },
-    q{/tmp/yes-} . $PID . q{.txt :
+    $Bin . q{/_tmp_}. $PID .q{/yes.txt :
 
   Diff:
     1c1
@@ -50,9 +55,9 @@ output_is(
 
 stdout_is(
     sub {
-        App::Fed::main(q{-d}, q{s/universe/world/}, q{/tmp/no-} . $PID . q{.txt});
+        App::Fed::main(q{-d}, q{s/universe/world/}, $Bin . q{/_tmp_}. $PID .q{/no.txt});
     },
-    q{/tmp/no-} . $PID . q{.txt :
+    $Bin . q{/_tmp_}. $PID .q{/no.txt :
 
   Diff:
     (no changes)

@@ -6,4 +6,4 @@ Build
 _build/
 blib/
 MYMETA.yml
-
+t/_tmp_*/
