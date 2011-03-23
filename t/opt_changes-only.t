@@ -15,6 +15,7 @@ use FindBin qw( $Bin );
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
+use File::Temp qw( tempfile );
 use Test::More;
 use Test::Output;
 # }}}
@@ -26,36 +27,41 @@ plan tests => 4;
 
 use App::Fed;
 
-mkdir $Bin .q{/_tmp_}. $PID;
-END {
-    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
-}
+my ($t_fh, $t_path, $t_new_path);
 
 
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/yes.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/no.txt};
+$t_new_path = $t_path;
+$t_new_path =~ s{/([^/]+)$}{/new-$1}; # FIXME: This is SO lame, but I'm not aiming at supporting Windows at the moment (this will change, hence this note exists)
 
 is(
-    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ world/}, $Bin . q{/_tmp_}. $PID .q{/yes.txt}),
+    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ world/}, $t_path),
     0,
     'Changes-only - matched.'
 );
 is(
-    scalar ( -f $Bin . q{/_tmp_}. $PID .q{/new-yes.txt} ),
+    scalar ( -f $t_new_path ),
     1,
     'Changes-only - matched - check.'
 );
 
 
 
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
+
+$t_new_path = $t_path;
+$t_new_path =~ s{/([^/]+)$}{/new-$1}; # FIXME: This is SO lame, but I'm not aiming at supporting Windows at the moment (this will change, hence this note exists)
+
 is(
-    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ universe/}, $Bin . q{/_tmp_}. $PID .q{/no.txt}),
+    App::Fed::main(q{-c}, q{-P}, q{new-}, q{r/ universe/}, $t_path),
     0,
     'Changes-only - missed.'
 );
 is(
-    scalar ( -f $Bin . q{/_tmp_}. $PID .q{/new-no.txt} ),
+    scalar ( -f $t_new_path ),
     undef,
     'Changes-only - missed - check.'
 );

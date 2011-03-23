@@ -15,6 +15,7 @@ use FindBin qw( $Bin );
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
+use File::Temp qw( tempfile );
 use Test::More;
 use Test::Output;
 # }}}
@@ -30,10 +31,7 @@ plan tests =>
 
 use App::Fed;
 
-mkdir $Bin .q{/_tmp_}. $PID;
-END {
-    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
-}
+my ($t_fh, $t_path);
 
 
 
@@ -59,6 +57,8 @@ system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/} . $P
 system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/} . $PID . q{/C/c/sample.txt};
 system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/} . $PID . q{/C/c/tse/sample.txt};
 
+#($t_fh, $t_path) = tempfile();
+#print $t_fh read_file($Bin . q{/../t_data/text_B.txt}); close $t_fh;
 
 
 is (

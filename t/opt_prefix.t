@@ -15,6 +15,7 @@ use FindBin qw( $Bin );
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
+use File::Temp qw( tempfile );
 use Test::More;
 # }}}
 
@@ -25,26 +26,26 @@ plan tests => 3;
 
 use App::Fed;
 
-mkdir $Bin .q{/_tmp_}. $PID;
-END {
-    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
-}
+my ($t_fh, $t_path, $t_new_path);
 
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
 
+$t_new_path = $t_path;
+$t_new_path =~ s{/([^/]+)$}{/new-$1}; # FIXME: This is SO lame, but I'm not aiming at supporting Windows at the moment (this will change, hence this note exists)
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 is(
-    App::Fed::main(q{-P}, q{new-}, q{s/world/universe/}, $Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    App::Fed::main(q{-P}, q{new-}, q{s/world/universe/}, $t_path),
     0,
     'Save to file with prefix added to the name.'
 );
 is(
-    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    read_file($t_path),
     qq{Hello world!\n},
     q{Prefix - check original},
 );
 is(
-    read_file($Bin . q{/_tmp_} . $PID . q{/new-test.txt}),
+    read_file($t_new_path),
     qq{Hello universe!\n},
     q{Prefix - check result},
 );

@@ -15,6 +15,7 @@ use FindBin qw( $Bin );
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
+use File::Temp qw( tempfile );
 use Test::More;
 use Test::Output;
 # }}}
@@ -29,41 +30,38 @@ plan tests =>
 
 use App::Fed;
 
-mkdir $Bin .q{/_tmp_}. $PID;
-END {
-    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
-}
+my ($t_fh, $t_path);
 
 
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/hello.txt};
 
-
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
 
 stdout_like(
     sub {
-        App::Fed::main(q{-p}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/hello.txt});
+        App::Fed::main(q{-p}, q{s/world/universe/}, $t_path);
     },
     qr{Would be updated},
     'Pretend - updated'
 );
 
 is(
-    read_file($Bin . q{/_tmp_}. $PID .q{/hello.txt}),
+    read_file($t_path),
     qq{Hello world!\n},
     q{Pretend - updated - check},
 );
 
 stdout_like(
     sub {
-        App::Fed::main(q{-p}, q{s/galaxy/universe/}, $Bin . q{/_tmp_}. $PID .q{/hello.txt});
+        App::Fed::main(q{-p}, q{s/galaxy/universe/}, $t_path);
     },
     qr{Would be skipped},
     'Pretend - skipped'
 );
 
 is(
-    read_file($Bin . q{/_tmp_}. $PID .q{/hello.txt}),
+    read_file($t_path),
     qq{Hello world!\n},
     q{Pretend - skipped - check},
 );

@@ -20,6 +20,7 @@ my $build = Module::Build->new(
 
         'Carp::Assert::More' => q{1.10},
         'File::Slurp'        => q{9999.13},
+        'File::Temp'         => q{0.22},
         'Getopt::Long'       => q{2.36},
     },
 

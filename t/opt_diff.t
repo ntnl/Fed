@@ -15,6 +15,7 @@ use FindBin qw( $Bin );
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
+use File::Temp qw( tempfile );
 use Test::More;
 use Test::Output;
 # }}}
@@ -26,21 +27,18 @@ plan tests => 2;
 
 use App::Fed;
 
-mkdir $Bin .q{/_tmp_}. $PID;
-END {
-    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
-}
+my ($t_fh, $t_path);
 
 
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/yes.txt};
-system q{cp}, $Bin . q{/../t_data/text_H.txt}, $Bin . q{/_tmp_}. $PID .q{/no.txt};
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
 
 
 output_is(
     sub {
-        App::Fed::main(q{-d}, q{s/world/universe/}, $Bin . q{/_tmp_}. $PID .q{/yes.txt});
+        App::Fed::main(q{-d}, q{s/world/universe/}, $t_path);
     },
-    $Bin . q{/_tmp_}. $PID .q{/yes.txt :
+    $t_path . q{ :
 
   Diff:
     1c1
@@ -53,11 +51,14 @@ output_is(
     'Diff - with changes'
 );
 
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
+
 stdout_is(
     sub {
-        App::Fed::main(q{-d}, q{s/universe/world/}, $Bin . q{/_tmp_}. $PID .q{/no.txt});
+        App::Fed::main(q{-d}, q{s/universe/world/}, $t_path);
     },
-    $Bin . q{/_tmp_}. $PID .q{/no.txt :
+    $t_path . q{ :
 
   Diff:
     (no changes)

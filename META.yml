@@ -20,6 +20,7 @@ provides:
 requires:
   Carp::Assert::More: 1.10
   File::Slurp: 9999.13
+  File::Temp: 0.22
   Getopt::Long: 2.36
   perl: v5.10.0
 resources:

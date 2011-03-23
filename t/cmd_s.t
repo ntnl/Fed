@@ -15,6 +15,7 @@ use FindBin qw( $Bin );
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file );
+use File::Temp qw( tempfile );
 use Test::More;
 use Test::Output;
 # }}}
@@ -29,21 +30,19 @@ plan tests =>
 
 use App::Fed;
 
-mkdir $Bin .q{/_tmp_}. $PID;
-END {
-    system q{rm}, q{-Rf}, $Bin .q{/_tmp_}. $PID;
-}
+my ($t_fh, $t_path);
 
 
 
-system q{cp}, $Bin . q{/../t_data/text_A.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_A.txt}); close $t_fh;
 is(
-    App::Fed::main("s{[ \t]+}{ }g", $Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    App::Fed::main("s{[ \t]+}{ }g", $t_path),
     0,
     'Remove extra spaces'
 );
 is(
-    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    read_file($t_path),
     q{Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet dignissim
 libero varius mollis. Suspendisse non leo a risus gravida tristique. Cras
 consectetur est at nisl pulvinar a lobortis dolor mollis. Donec id facilisis
@@ -63,18 +62,18 @@ Donec bibendum nisi lacinia enim facilisis ut tristique ligula iaculis.
 },
     q{Remove extra spaces - check},
 );
-system q{rm}, q{-f}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 
 
 
-system q{cp}, $Bin . q{/../t_data/text_B.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_B.txt}); close $t_fh;
 is(
-    App::Fed::main("s/foo bar baz/foo rab baz/g", $Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    App::Fed::main("s/foo bar baz/foo rab baz/g", $t_path),
     0,
     'Replace "bar" with "rab", but only between "foo" and "baz"'
 );
 is(
-    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    read_file($t_path),
     q{foo rab baz
 baz foo bar
 bar baz foo
@@ -89,18 +88,18 @@ bar baz foo baz bar
 },
     q{Replace "bar" with "rab", but only between "foo" and "baz" - check},
 );
-system q{rm}, q{-f}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 
 
 
-system q{cp}, $Bin . q{/../t_data/html_A.html}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/html_A.html}); close $t_fh;
 is(
-    App::Fed::main(q{s[\<[^\<\>]+\>][]g}, q{s/[ \\t]+/ /g}, q{s/^ +//mg}, q{s/ +$//mg}, q{s/\n\n+/\n\n/g}, q{s/^\n+//}, q{s/\n+$//}, $Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    App::Fed::main(q{s[\<[^\<\>]+\>][]g}, q{s/[ \\t]+/ /g}, q{s/^ +//mg}, q{s/ +$//mg}, q{s/\n\n+/\n\n/g}, q{s/^\n+//}, q{s/\n+$//}, $t_path),
     0,
     'Strip html'
 );
 is(
-    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    read_file($t_path),
     q{This is HTML sample A
 
 Lorem
@@ -118,18 +117,18 @@ Nunc sit amet tortor lorem, ut porttitor nulla. Integer egestas lobortis tortor,
 Ut quis lectus lectus, in eleifend velit. Aenean et arcu a massa eleifend commodo vel vel elit.},
     q{Strip html - check},
 );
-system q{rm}, q{-f}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
 
 
 
-system q{cp}, $Bin . q{/../t_data/text_S.txt}, $Bin . q{/_tmp_} . $PID . q{/test.txt};
+($t_fh, $t_path) = tempfile();
+print $t_fh read_file($Bin . q{/../t_data/text_S.txt}); close $t_fh;
 is(
-    App::Fed::main(q{s/Slash\/Bar/Slash-Bar/g}, $Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    App::Fed::main(q{s/Slash\/Bar/Slash-Bar/g}, $t_path),
     0,
     q{Replace with '/' in it}
 );
 is(
-    read_file($Bin . q{/_tmp_} . $PID . q{/test.txt}),
+    read_file($t_path),
     q{/Foo/Bar/Slash/Baz
 /Foo/Slash-Bar/Baz
 /Foo/Baz/Slash-Bar
@@ -141,7 +140,7 @@ is(
 # Crash tests.
 stderr_like(
     sub {
-        App::Fed::main(q{s/Broken(Regexp//g}, $Bin . q{/_tmp_} . $PID . q{/test.txt});
+        App::Fed::main(q{s/Broken(Regexp//g}, $t_path);
     },
     qr{Invalid REGEXP:},
     'Broken regexp works OK.'
