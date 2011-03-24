@@ -13,10 +13,10 @@ name: App-Fed
 provides:
   App::Fed:
     file: lib/App/Fed.pm
-    version: 0.01_90
+    version: 0.01_99
   App::Fed::Cookbook:
     file: lib/App/Fed/Cookbook.pm
-    version: 0.01_90
+    version: 0.01_99
 requires:
   Carp::Assert::More: 1.10
   File::Slurp: 9999.13
@@ -25,4 +25,4 @@ requires:
   perl: v5.10.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.01_90
+version: 0.01_99

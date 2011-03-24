@@ -11,7 +11,7 @@ package App::Fed::Cookbook;
 ################################################################################
 use warnings; use strict;
 
-my $VERSION = '0.01_90';
+my $VERSION = '0.01_99';
 
 =encoding UTF-8
 

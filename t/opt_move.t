@@ -30,13 +30,13 @@ plan tests =>
 
 use App::Fed;
 
-my ($t_fh, $t_path);
+my ($t_fh, $t_path, $t_new_path);
 
 
 ($t_fh, $t_path) = tempfile();
 print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
 
-my $t_new_path = $t_path;
+$t_new_path = $t_path;
 $t_new_path =~ s{/([^/]+)$}{/new_$1}; # FIXME: This is SO lame, but I'm not aiming at supporting Windows at the moment (this will change, hence this note exists)
 
 my @stat_before_short = stat $t_path;
@@ -70,7 +70,7 @@ is (
 ($t_fh, $t_path) = tempfile();
 print $t_fh read_file($Bin . q{/../t_data/text_H.txt}); close $t_fh;
 
-my $t_new_path = $t_path;
+$t_new_path = $t_path;
 $t_new_path =~ s{/([^/]+)$}{/new_$1}; # FIXME: This is SO lame, but I'm not aiming at supporting Windows at the moment (this will change, hence this note exists)
 
 my @stat_before_long  = stat $t_path;

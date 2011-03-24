@@ -1,4 +1,8 @@
     
+    0.01_99 - 2011-03-24 - Release Candidate
+
+o Use File::Temp to create temporal files in tests and daily usage.
+
     0.01_90 - 2011-03-20 - Beta release.
 
 o Do not use /tmp in tests.

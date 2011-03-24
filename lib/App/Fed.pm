@@ -11,10 +11,11 @@ package App::Fed;
 ################################################################################
 use warnings; use strict;
 
-my $VERSION = '0.01_90'; # {{{
+my $VERSION = '0.01_99'; # {{{
 
 use English qw( -no_match_vars );
 use File::Slurp qw( read_file write_file read_dir );
+use File::Temp qw( tempfile );
 use Getopt::Long 2.36 qw( GetOptionsFromArray );
 # }}}
 
@@ -546,9 +547,9 @@ sub _process_file { # {{{
 
         my $diff_command = ( $options{'diff-command'} or 'diff' );
 
-        my $tmp_file = q{/tmp/fed-diff-}. $PID;
+        my ($tmp_fh, $tmp_file) = tempfile();
 
-        write_file($tmp_file, $contents);
+        write_file($tmp_fh, $contents);
         my $fh;
         $has_changes = 0;
         open $fh, q{-|}, $diff_command, $file, $tmp_file;
